@@ -1,0 +1,23 @@
+%dw 1.0
+
+%var exchangeRateFromUSDtoGBP = 1.35
+%var dateFormat = "yyyy-MM-dd"
+
+%function convertPriceFromUSDtoGBP (input)
+
+"$(getIntroString()) : $(input * exchangeRateFromUSDtoGBP)"
+
+%function getIntroString()
+"The price converted to GBP is "
+
+%function CompareDatesl(date1, date2,dateformat) (
+ true when (date1 as :date {format: dateFormat}) > (date2 as :date {format: dateFormat})  otherwise false
+)
+---
+
+{
+	exchangeRate : exchangeRateFromUSDtoGBP,
+	convertPrice : convertPriceFromUSDtoGBP,
+	formatString : (aString, formatter) -> formatter(aString),
+	Cmpdatesgf : CompareDatesl
+}

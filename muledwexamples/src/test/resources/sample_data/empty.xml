@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Quotes>
+  <ID>123456789</ID>
+  <Quote>
+    <Record>
+      <SymbolID>537:453745</SymbolID>
+      <Ticker>YHOO</Ticker>
+      <ExchangeCode>NQ</ExchangeCode>
+      <Currency>USD</Currency>
+      <Values>
+        <Last>38.22</Last>
+        <Open>36.83</Open>
+        <High>38.32</High>
+        <Low>36.52</Low>
+        <High52>41.72</High52>
+        <Low52>19.31</Low52>
+        <Close>36.65</Close>
+        <ChangePrice>1.57</ChangePrice>
+        <ChangePercent>4.28</ChangePercent>
+        <Bid>38.19</Bid>
+        <Ask>38.23</Ask>
+      </Values>
+    </Record>
+  </Quote>
+  <Quote>
+    <Record>
+      <SymbolID>420:819208</SymbolID>
+      <Ticker>GOOG</Ticker>
+      <ExchangeCode>NQ</ExchangeCode>
+      <Currency>USD</Currency>
+      <Values>
+        <Last>47.12</Last>
+        <Open>47.00</Open>
+        <High>48.50</High>
+        <Low>42.32</Low>
+        <High52>51.34</High52>
+        <Low52>39.17</Low52>
+        <Close>47.25</Close>
+        <ChangePrice>3.57</ChangePrice>
+        <ChangePercent>2.42</ChangePercent>
+        <Bid>47.84</Bid>
+        <Ask>47.36</Ask>
+      </Values>
+    </Record>
+  </Quote>
+</Quotes>

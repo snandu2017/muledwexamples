@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <flow name="dwoperators">
+        <set-variable variableName="operator" value="#[message.inboundProperties.'http.query.params'.operator]" doc:name="Variable"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.operator == 'map']">
+                <dw:transform-message doc:name="Map">
+                <dw:input-payload doc:sample="xml_1.xml" mimeType="application/xml" />
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%var conversionRate=13.45
+//Ref link: https://docs.mulesoft.com/mule-user-guide/v/3.8/dataweave-operators#map
+---
+priceList: payload.prices map ((money, position) ->
+  '$position':{
+    dollars: money,
+    localCurrency: money * conversionRate
+  }
+)]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <when expression="#[flowVars.operator == 'mapobject']">
+                <dw:transform-message doc:name="MapObject">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%var conversionRate=13.45
+//Ref link: https://docs.mulesoft.com/mule-user-guide/v/3.8/dataweave-operators#map-object
+---
+priceList: payload.prices mapObject (
+  '$$':{
+    dollars: $,
+    localCurrency: $ * conversionRate
+  }
+)]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <when expression="#[flowVars.operator == 'pluck']">
+                <dw:transform-message doc:name="Pluck">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+//Ref link: //Ref link: https://docs.mulesoft.com/mule-user-guide/v/3.8/dataweave-operators#pluck
+---
+result: {
+  keys: payload.prices pluck $$,
+  values: payload.prices pluck $
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <when expression="#[flowVars.operator == 'morefunctions']">
+                <dw:transform-message doc:name="MoreFunctions">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+//Ref link: https://docs.mulesoft.com/mule-user-guide/v/3.8/dataweave-operators
+---
+{
+  Filtergt2: [0, 1, 2, 3, 4, 5] filter $ > 2,
+  FilterObject: {aa: "a", bb: "b", cc: "c", dd: "d"} filter $ == "d",
+  Removeaa: ["a", "b", "c"] - 1,
+  Removeobject: {aa: "a", bb: "b"} - "aa",
+  RemovematchObject: {aa: "a", aa:"c", bb: "b"} -- { aa:"a"},
+  Concatnumberarray: [0, 1, 2] ++ [3, 4, 5],
+  ConcatString: "Mule" ++ "Soft",
+  ConcatObject: {aa: "a"} ++ {cc: "c"},
+  Flatten: flatten [[3,5],[9,5],[154,0.3]],
+  arraySize: sizeOf [1,2,3],
+  textSize: sizeOf "MuleSoft",
+  objectSize: sizeOf {a:1,b:2},
+  Arraypush: [0, 1, 2] + 5,
+  RemoveArray: [0, 1, 1, 2] - 1,
+  RemoveArrayval: [{a: "a"}] - {a: "a"},
+  RemovematchArray: [0, 1, 1, 2] -- [1,2],
+  Averagearray1: avg [1..1000],
+  Averagearray2: avg [1, 2, 3],
+  SubstringConfig: subString("Helloworld",5,10)
+}
+]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <when expression="#[flowVars.operator == 'math']">
+                <dw:transform-message doc:name="MathOperators">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+//Ref link: https://docs.mulesoft.com/mule-user-guide/v/3.8/dataweave-operators#basic-math-operations
+---
+{
+Sum : 2 + 2.5,
+Minus : 2.5 - 2,
+multiply : 2.5 * 2,
+division : 10 / 2,
+Max1: max [1..1000],
+Max2: max [1, 2, 3],
+Max3: max [1.5, 2.5, 3.5],
+Min1: min [1..1000],
+Min2: min [1, 2, 3],
+Min3: min [1.5, 2.5, 3.5],
+Round: round 4.6,
+SquareRoot: sqrt 25,
+Powerof: 2 pow 3,
+Ceil: ceil  2.2,
+floor1: floor 1.6,
+absolute: abs -2,
+Remainder: 3 mod 2,
+current_time: now
+}
+]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <when expression="#[flowVars.operator == 'datetime']">
+                <dw:transform-message doc:name="DateTime">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+//Ref link: https://docs.mulesoft.com/mule-user-guide/v/3.8/dataweave-operators#date-time-operations
+---
+{
+  Day: |2003-10-01|.day,
+  Month: |2003-10-01|.month,
+  Year: |2003-10-01|.year,
+  Hour: |2003-10-01T23:57:59Z|.hour,
+  Minutes: |2003-10-01T23:57:59Z|.minutes,
+  Seconds: |2003-10-01T23:57:59Z|.seconds,
+  OffsetSecs: |2003-10-01T23:57:59-03:00|.offsetSeconds,
+  hours: |23:57:59Z|.hour,
+  Nanosecs: |23:57:59.700|.nanoseconds,
+  Millisecs: |23:57:59.700|.milliseconds,
+  dayofweek: |2003-10-01T23:57:59Z|.dayOfWeek,
+  dayofyear: |2003-10-01T23:57:59Z|.dayOfYear,
+  years: |P3Y2M10D|.years,
+  ShiftTimezone: |2014-01-01T14:00-03:00| >> |-08:00|,
+  AppendTime: |2003-10-01| ++ |23:57:59|,
+  AppendTimeZone: |2003-10-01T23:57:59| ++ |-03:00|,
+  AddingPeriod: |2003-10-01T23:57:59Z| + |P1Y|,
+  SubPeriod: |2003-10-01T23:57:59Z| - |P1Y|,
+  Sub2Dates: |23:59:56-03:00| - |22:59:56-00:00|,
+  Sub2Dates2: |2003-10-01| - |2002-09-23|
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <otherwise>
+                <dw:transform-message doc:name="ErrorMessage">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	Error: "Invalid input operator"
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </otherwise>
+        </choice>
+
+     <logger message="Called the TestDataweave #[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>

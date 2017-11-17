@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd">
+    <http:listener-config xmlns:http="http://www.mulesoft.org/schema/mule/http" name="muledwexamples-httpListenerConfig" host="0.0.0.0" port="8084" doc:name="HTTP Listener Configuration"/>
+    <configuration doc:name="Configuration">
+        <expression-language>
+            <global-functions>def subString(value,start,end) {
+                  return org.apache.commons.lang3.StringUtils.substring(value,start,end);
+              }</global-functions>
+        </expression-language>
+    </configuration>
+    
+    <configuration doc:name="Configuration">
+	<expression-language>
+		<import class="muledwexamples.CompareDates" />
+		<global-functions>
+    def CompareDate(a,b) {
+    return muledwexamples.CompareDates.CompareDats(a,b);
+    }
+   </global-functions>
+	</expression-language>
+</configuration>
+    <!-- configuration doc:name="Configuration">
+        <expression-language>
+            <global-functions>def CompareDate(date1,date2) {
+                  return java.util.date1.compareTo(date2);
+              }</global-functions>
+        </expression-language>
+    </configuration-->
+    <apikit:config xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" name="muledwexamples-config" raml="muledwexamples.raml" consoleEnabled="false" doc:name="Router"/>
+    <flow name="muledwexamples-main">
+        <http:listener xmlns:http="http://www.mulesoft.org/schema/mule/http" config-ref="muledwexamples-httpListenerConfig" path="/*" doc:name="HTTP"/>
+        <apikit:router xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" config-ref="muledwexamples-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="muledwexamples-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="muledwexamples-console">
+        <http:listener xmlns:http="http://www.mulesoft.org/schema/mule/http" config-ref="muledwexamples-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" config-ref="muledwexamples-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="post:/dwexamplesiojson:muledwexamples-config">
+        <flow-ref name="jsonioinputflow" doc:name="Flow Reference"/>
+
+    </flow>
+    <flow name="post:/dwexamplesioxml:muledwexamples-config">
+        <flow-ref name="xmlioinputflow" doc:name="Flow Reference"/>
+
+    </flow>
+    <flow name="post:/dwexamplesjsonxml:muledwexamples-config">
+        <flow-ref name="jsonxmlinputflow" doc:name="Flow Reference"/>
+
+    </flow>
+    <flow name="post:/dwexamplesxmljson:muledwexamples-config">
+        <flow-ref name="xmljsoninputflow" doc:name="Flow Reference"/>
+
+    </flow>
+    <flow name="post:/dwoperators:muledwexamples-config">
+        <flow-ref name="dwoperators" doc:name="Flow Reference"/>
+
+    </flow>
+    <apikit:mapping-exception-strategy xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" name="muledwexamples-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>
